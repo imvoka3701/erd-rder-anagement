@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mô hình ERD - Quản lý đơn đặt hàng</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Mermaid.js for interactive rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.7);
+      --bg-card-hover: rgba(51, 65, 85, 0.8);
+      --border-color: rgba(148, 163, 184, 0.15);
+      --border-accent: rgba(59, 130, 246, 0.5);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --purple: #8b5cf6;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --gradient-brand: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-glow: 0 0 25px rgba(59, 130, 246, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 30px;
+      padding: 35px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-brand);
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 4px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 800px;
+    }
+
+    /* Navigation Tabs */
+    .tabs-nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: var(--bg-card-hover);
+      border-color: rgba(148, 163, 184, 0.3);
+    }
+
+    .tab-btn.active {
+      color: #ffffff;
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
+    }
+
+    /* Tab Contents */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card styling */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #ffffff;
+    }
+
+    .card-title .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      font-size: 1rem;
+    }
+
+    /* 5 Steps Grid */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .step-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .step-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-accent);
+    }
+
+    .step-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .step-1 .step-badge { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .step-2 .step-badge { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .step-3 .step-badge { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .step-4 .step-badge { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+    .step-5 .step-badge { background: rgba(244, 63, 94, 0.2); color: #fb7185; }
+
+    .step-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: #f1f5f9;
+    }
+
+    .step-card ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .step-card li {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .step-card li::before {
+      content: '•';
+      color: var(--primary);
+      position: absolute;
+      left: 4px;
+      font-weight: bold;
+    }
+
+    /* Diagrams Canvas */
+    .diagram-container {
+      background: #090d16;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius-md);
+      padding: 25px;
+      overflow-x: auto;
+      text-align: center;
+      min-height: 400px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .diagram-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tip-box {
+      background: rgba(59, 130, 246, 0.1);
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.9rem;
+      color: #93c5fd;
+      margin-bottom: 15px;
+    }
+
+    /* Schema Table */
+    .schema-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .table-box {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .table-box-header {
+      background: rgba(30, 41, 59, 0.9);
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .table-name {
+      font-weight: 700;
+      color: #60a5fa;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+    }
+
+    .table-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .column-list {
+      padding: 12px 18px;
+    }
+
+    .column-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+      font-size: 0.88rem;
+    }
+
+    .column-item:last-child {
+      border-bottom: none;
+    }
+
+    .col-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pk-badge {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .fk-badge {
+      background: rgba(139, 92, 246, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .col-type {
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    /* SQL Code View */
+    .code-wrapper {
+      position: relative;
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: #131b2e;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .code-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .btn-copy {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .btn-copy:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    pre code {
+      display: block;
+      padding: 20px;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      max-height: 520px;
+      overflow-y: auto;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="badge-pill">Cơ sở dữ liệu quan hệ • Phân tích & Thiết kế ERD</div>
+      <h1>Mô hình ERD: Quản lý đơn đặt hàng</h1>
+      <p class="subtitle">Hoàn thành bài thực hành thiết kế, chuẩn hóa mô hình thực thể liên kết (ERD) và chuyển đổi sang sơ đồ cơ sở dữ liệu quan hệ hoàn chỉnh.</p>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('tab-overview', this)">
+        <span>📌</span> Quy trình 5 bước thực hiện
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-step4', this)">
+        <span>📊</span> Sơ đồ ERD ban đầu (Bước 4)
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-step5', this)">
+        <span>⭐</span> Sơ đồ ERD chuẩn hóa (Bước 5)
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-schema', this)">
+        <span>🗄</span> Cấu trúc bảng CSDL
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-sql', this)">
+        <span>💻</span> Kịch bản SQL (DDL & Query)
+      </button>
+    </nav>
+
+    <!-- TAB 1: 5 Steps Overview -->
+    <section id="tab-overview" class="tab-content active">
+      <div class="glass-card">
+        <h2 class="card-title">
+          <span class="icon">🧭</span> Tổng quan phương pháp thiết kế từ bài toán thực tế
+        </h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">
+          Quy trình thiết kế mô hình dữ liệu đi từ phân tích nghiệp vụ thực tế (chứng từ đơn đặt hàng và phiếu giao hàng), xác định thực thể, thuộc tính, phân tích bản số quan hệ và chuẩn hóa cấu trúc để loại bỏ dư thừa.
+        </p>
+
+        <div class="steps-grid">
+          <!-- Step 1 -->
+          <div class="step-card step-1">
+            <span class="step-badge">Bước 1</span>
+            <h3>Liệt kê & Chọn lọc thông tin</h3>
+            <ul>
+              <li><strong>Đơn đặt hàng:</strong> Số ĐH, Tên ĐV, Địa chỉ, Điện thoại, Ngày đặt, Tên hàng, Mô tả, Đv tính, Số lượng, Người đặt.</li>
+              <li><strong>Phiếu giao hàng:</strong> Số PG, Tên ĐV, Địa chỉ, Nơi giao hàng, Ngày giao, Tên hàng, Đv tính, Số lượng, Đơn giá, Thành tiền, Người nhận, Người giao.</li>
+            </ul>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step-card step-2">
+            <span class="step-badge">Bước 2</span>
+            <h3>Xác định thực thể & Thuộc tính</h3>
+            <ul>
+              <li><strong>ĐƠN VỊ ĐH:</strong> Mã ĐV, Tên ĐV, Địa chỉ, Điện thoại.</li>
+              <li><strong>ĐƠN VỊ KH:</strong> Mã ĐV, Tên ĐV, Địa chỉ.</li>
+              <li><strong>HÀNG:</strong> Mã hàng, Tên hàng, Đv tính, Mô tả.</li>
+              <li><strong>NGƯỜI ĐẶT:</strong> Mã số NĐ, Họ tên NĐ.</li>
+              <li><strong>NƠI GIAO:</strong> Mã số ĐĐG, Tên nơi giao.</li>
+              <li><strong>NGƯỜI NHẬN & NGƯỜI GIAO:</strong> Mã số và Họ tên.</li>
+              <li><strong>ĐƠN ĐH & PHIẾU GH:</strong> Số chứng từ, Ngày lập.</li>
+            </ul>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step-card step-3">
+            <span class="step-badge">Bước 3</span>
+            <h3>Xác định các mối quan hệ</h3>
+            <ul>
+              <li>Người đặt <strong>THUỘC</strong> Đơn vị đặt hàng (1 - N).</li>
+              <li>Người nhận <strong>THUỘC</strong> Đơn vị khách hàng (1 - N).</li>
+              <li>Người đặt <strong>LẬP</strong> Đơn đặt hàng (1 - N).</li>
+              <li>Đơn hàng <strong>GỒM</strong> Hàng (N - N, thuộc tính Số lượng).</li>
+              <li>Người giao <strong>GIAO</strong> Phiếu giao (1 - N).</li>
+              <li>Phiếu giao <strong>GIAO TẠI</strong> Nơi giao (N - 1).</li>
+              <li>Phiếu giao <strong>GỒM</strong> Hàng (N - N, SL, Đơn giá, Thành tiền).</li>
+            </ul>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="step-card step-4">
+            <span class="step-badge">Bước 4</span>
+            <h3>Vẽ sơ đồ ERD ban đầu</h3>
+            <ul>
+              <li>Mô hình hóa toàn bộ 9 thực thể ban đầu.</li>
+              <li>Thể hiện các mối liên kết và bản số (1-1, 1-N, N-N).</li>
+              <li>Giữ nguyên quan hệ nhiều-nhiều có thuộc tính quan hệ (Số lượng đặt, Đơn giá giao, Thành tiền).</li>
+            </ul>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="step-card step-5">
+            <span class="step-badge">Bước 5</span>
+            <h3>Chuẩn hóa & Rút gọn mô hình</h3>
+            <ul>
+              <li><strong>Gộp thực thể:</strong> ĐƠN VỊ ĐH và ĐƠN VỊ KH có chung ngữ nghĩa khách hàng bên ngoài &rarr; Gộp thành <strong>ĐƠN VỊ KHÁCH</strong>.</li>
+              <li><strong>Khử quan hệ N-N:</strong> Tách quan hệ Nhiều - Nhiều thành 2 bảng liên kết: <code>CHI_TIET_DON_HANG</code> và <code>CHI_TIET_PHIEU_GIAO</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Step 4 Initial ERD -->
+    <section id="tab-step4" class="tab-content">
+      <div class="glass-card">
+        <div class="diagram-actions">
+          <h2 class="card-title">
+            <span class="icon">📊</span> Sơ đồ mô hình ERD ban đầu (Trước khi chuẩn hóa)
+          </h2>
+          <span class="badge-pill" style="margin:0;">Bước 4</span>
+        </div>
+        <div class="tip-box">
+          💡 <strong>Đặc điểm sơ đồ ban đầu:</strong> Còn tách riêng 2 thực thể <code>DON_VI_DH</code> và <code>DON_VI_KH</code>; các quan hệ đặt hàng và giao hàng còn ở dạng Nhiều - Nhiều (N:N).
+        </div>
+        <div class="diagram-container">
+          <pre class="mermaid">
+erDiagram
+    DON_VI_DH ||--o{ NGUOI_DAT : "co"
+    DON_VI_KH ||--o{ NGUOI_NHAN : "co"
+    NGUOI_DAT ||--o{ DON_DAT_HANG : "dat"
+    DON_DAT_HANG ||--o{ PHIEU_GIAO_HANG : "can_cu"
+    NGUOI_GIAO ||--o{ PHIEU_GIAO_HANG : "giao"
+    NGUOI_NHAN ||--o{ PHIEU_GIAO_HANG : "nhan"
+    NOI_GIAO ||--o{ PHIEU_GIAO_HANG : "tai"
+    DON_DAT_HANG }|--|{ HANG : "dat_hang"
+    PHIEU_GIAO_HANG }|--|{ HANG : "giao_hang"
+
+    DON_VI_DH {
+        string MaDV PK
+        string TenDV
+        string DiaChi
+        string DienThoai
+    }
+    DON_VI_KH {
+        string MaDV PK
+        string TenDV
+        string DiaChi
+    }
+    NGUOI_DAT {
+        string MaND PK
+        string HoTenND
+    }
+    NGUOI_NHAN {
+        string MaNN PK
+        string HoTenNN
+    }
+    NGUOI_GIAO {
+        string MaNG PK
+        string HoTenNG
+    }
+    NOI_GIAO {
+        string MaDDG PK
+        string TenNoiGiao
+    }
+    HANG {
+        string MaHang PK
+        string TenHang
+        string DvTinh
+        string MoTaHang
+    }
+    DON_DAT_HANG {
+        string SoDH PK
+        date NgayDat
+    }
+    PHIEU_GIAO_HANG {
+        string SoPG PK
+        date NgayGiao
+    }
+          </pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Step 5 Normalized ERD -->
+    <section id="tab-step5" class="tab-content">
+      <div class="glass-card">
+        <div class="diagram-actions">
+          <h2 class="card-title">
+            <span class="icon">⭐</span> Sơ đồ mô hình ERD sau chuẩn hóa & rút gọn
+          </h2>
+          <span class="badge-pill" style="margin:0; background: rgba(16,185,129,0.15); color:#34d399; border-color:rgba(16,185,129,0.3);">Bước 5 • Hoàn thiện</span>
+        </div>
+        <div class="tip-box" style="border-left-color: var(--accent); background: rgba(16,185,129,0.1); color: #a7f3d0;">
+          ✨ <strong>Điểm tối ưu:</strong> Gộp thành thực thể <code>DON_VI_KHACH</code>. Giải quyết triệt để quan hệ N:N bằng 2 bảng liên kết <code>CHI_TIET_DON_HANG</code> và <code>CHI_TIET_PHIEU_GIAO</code>, sẵn sàng ánh xạ trực tiếp sang các bảng RDBMS.
+        </div>
+        <div class="diagram-container">
+          <pre class="mermaid">
+erDiagram
+    DON_VI_KHACH ||--o{ NGUOI_DAT : "thuoc"
+    DON_VI_KHACH ||--o{ NGUOI_NHAN : "thuoc"
+    NGUOI_DAT ||--o{ DON_DAT_HANG : "lap"
+    DON_DAT_HANG ||--|{ CHI_TIET_DON_HANG : "gom"
+    HANG ||--|{ CHI_TIET_DON_HANG : "duoc_dat"
+    DON_DAT_HANG ||--o{ PHIEU_GIAO_HANG : "can_cu"
+    NGUOI_GIAO ||--o{ PHIEU_GIAO_HANG : "giao"
+    NGUOI_NHAN ||--o{ PHIEU_GIAO_HANG : "nhan"
+    NOI_GIAO ||--o{ PHIEU_GIAO_HANG : "tai"
+    PHIEU_GIAO_HANG ||--|{ CHI_TIET_PHIEU_GIAO : "gom"
+    HANG ||--|{ CHI_TIET_PHIEU_GIAO : "duoc_giao"
+
+    DON_VI_KHACH {
+        string MaDV PK
+        string TenDV
+        string DiaChi
+        string DienThoai
+    }
+    NGUOI_DAT {
+        string MaND PK
+        string HoTenND
+        string MaDV FK
+    }
+    NGUOI_NHAN {
+        string MaNN PK
+        string HoTenNN
+        string MaDV FK
+    }
+    NGUOI_GIAO {
+        string MaNG PK
+        string HoTenNG
+    }
+    NOI_GIAO {
+        string MaDDG PK
+        string TenNoiGiao
+    }
+    HANG {
+        string MaHang PK
+        string TenHang
+        string DvTinh
+        string MoTaHang
+    }
+    DON_DAT_HANG {
+        string SoDH PK
+        date NgayDat
+        string MaND FK
+    }
+    CHI_TIET_DON_HANG {
+        string SoDH PK,FK
+        string MaHang PK,FK
+        int SoLuongDat
+    }
+    PHIEU_GIAO_HANG {
+        string SoPG PK
+        date NgayGiao
+        string SoDH FK
+        string MaNG FK
+        string MaNN FK
+        string MaDDG FK
+    }
+    CHI_TIET_PHIEU_GIAO {
+        string SoPG PK,FK
+        string MaHang PK,FK
+        int SoLuongGiao
+        decimal DonGiaGiao
+        decimal ThanhTien
+    }
+          </pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Relational Schema -->
+    <section id="tab-schema" class="tab-content">
+      <div class="glass-card">
+        <h2 class="card-title">
+          <span class="icon">🗄</span> Cấu trúc các bảng cơ sở dữ liệu quan hệ (10 Bảng)
+        </h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">
+          Mô hình bảng dữ liệu đã đạt dạng chuẩn 3NF, phân định rõ ràng khóa chính (PK), khóa ngoại (FK) và các ràng buộc toàn vẹn tham chiếu.
+        </p>
+
+        <div class="schema-grid">
+          <!-- Bảng don_vi_khach -->
+          <div class="table-box">
+            <div class="table-box-header">
+              <span class="table-name">don_vi_khach</span>
+              <span class="table-desc">Đơn vị khách hàng</span>
+            </div>
+            <div class="column-list">
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> ma_dv</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name">ten_dv</span><span class="col-type">VARCHAR(150)</span></div>
+              <div class="column-item"><span class="col-name">dia_chi</span><span class="col-type">VARCHAR(255)</span></div>
+              <div class="column-item"><span class="col-name">dien_thoai</span><span class="col-type">VARCHAR(20)</span></div>
+            </div>
+          </div>
+
+          <!-- Bảng nguoi_dat -->
+          <div class="table-box">
+            <div class="table-box-header">
+              <span class="table-name">nguoi_dat</span>
+              <span class="table-desc">Người lập đơn đặt</span>
+            </div>
+            <div class="column-list">
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> ma_nd</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name">ho_ten_nd</span><span class="col-type">VARCHAR(100)</span></div>
+              <div class="column-item"><span class="col-name"><span class="fk-badge">FK</span> ma_dv</span><span class="col-type">VARCHAR(20)</span></div>
+            </div>
+          </div>
+
+          <!-- Bảng nguoi_nhan -->
+          <div class="table-box">
+            <div class="table-box-header">
+              <span class="table-name">nguoi_nhan</span>
+              <span class="table-desc">Người ký nhận hàng</span>
+            </div>
+            <div class="column-list">
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> ma_nn</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name">ho_ten_nn</span><span class="col-type">VARCHAR(100)</span></div>
+              <div class="column-item"><span class="col-name"><span class="fk-badge">FK</span> ma_dv</span><span class="col-type">VARCHAR(20)</span></div>
+            </div>
+          </div>
+
+          <!-- Bảng nguoi_giao -->
+          <div class="table-box">
+            <div class="table-box-header">
+              <span class="table-name">nguoi_giao</span>
+              <span class="table-desc">Nhân viên kho / giao</span>
+            </div>
+            <div class="column-list">
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> ma_ng</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name">ho_ten_ng</span><span class="col-type">VARCHAR(100)</span></div>
+            </div>
+          </div>
+
+          <!-- Bảng noi_giao -->
+          <div class="table-box">
+            <div class="table-box-header">
+              <span class="table-name">noi_giao</span>
+              <span class="table-desc">Địa điểm bàn giao</span>
+            </div>
+            <div class="column-list">
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> ma_ddg</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name">ten_noi_giao</span><span class="col-type">VARCHAR(255)</span></div>
+            </div>
+          </div>
+
+          <!-- Bảng hang -->
+          <div class="table-box">
+            <div class="table-box-header">
+              <span class="table-name">hang</span>
+              <span class="table-desc">Danh mục hàng hóa</span>
+            </div>
+            <div class="column-list">
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> ma_hang</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name">ten_hang</span><span class="col-type">VARCHAR(150)</span></div>
+              <div class="column-item"><span class="col-name">dv_tinh</span><span class="col-type">VARCHAR(50)</span></div>
+              <div class="column-item"><span class="col-name">mo_ta_hang</span><span class="col-type">TEXT</span></div>
+            </div>
+          </div>
+
+          <!-- Bảng don_dat_hang -->
+          <div class="table-box">
+            <div class="table-box-header">
+              <span class="table-name">don_dat_hang</span>
+              <span class="table-desc">Chứng từ đặt hàng</span>
+            </div>
+            <div class="column-list">
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> so_dh</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name">ngay_dat</span><span class="col-type">DATE</span></div>
+              <div class="column-item"><span class="col-name"><span class="fk-badge">FK</span> ma_nd</span><span class="col-type">VARCHAR(20)</span></div>
+            </div>
+          </div>
+
+          <!-- Bảng chi_tiet_don_hang -->
+          <div class="table-box">
+            <div class="table-box-header">
+              <span class="table-name">chi_tiet_don_hang</span>
+              <span class="table-desc">Mặt hàng & số lượng đặt</span>
+            </div>
+            <div class="column-list">
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> <span class="fk-badge">FK</span> so_dh</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> <span class="fk-badge">FK</span> ma_hang</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name">so_luong_dat</span><span class="col-type">INT</span></div>
+            </div>
+          </div>
+
+          <!-- Bảng phieu_giao_hang -->
+          <div class="table-box">
+            <div class="table-box-header">
+              <span class="table-name">phieu_giao_hang</span>
+              <span class="table-desc">Chứng từ xuất & giao hàng</span>
+            </div>
+            <div class="column-list">
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> so_pg</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name">ngay_giao</span><span class="col-type">DATE</span></div>
+              <div class="column-item"><span class="col-name"><span class="fk-badge">FK</span> so_dh</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name"><span class="fk-badge">FK</span> ma_ng</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name"><span class="fk-badge">FK</span> ma_nn</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name"><span class="fk-badge">FK</span> ma_ddg</span><span class="col-type">VARCHAR(20)</span></div>
+            </div>
+          </div>
+
+          <!-- Bảng chi_tiet_phieu_giao -->
+          <div class="table-box">
+            <div class="table-box-header">
+              <span class="table-name">chi_tiet_phieu_giao</span>
+              <span class="table-desc">Hàng thực giao & đơn giá</span>
+            </div>
+            <div class="column-list">
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> <span class="fk-badge">FK</span> so_pg</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name"><span class="pk-badge">PK</span> <span class="fk-badge">FK</span> ma_hang</span><span class="col-type">VARCHAR(20)</span></div>
+              <div class="column-item"><span class="col-name">so_luong_giao</span><span class="col-type">INT</span></div>
+              <div class="column-item"><span class="col-name">don_gia_giao</span><span class="col-type">DECIMAL(15,2)</span></div>
+              <div class="column-item"><span class="col-name">thanh_tien</span><span class="col-type">DECIMAL(15,2)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: SQL Source -->
+    <section id="tab-sql" class="tab-content">
+      <div class="glass-card">
+        <h2 class="card-title">
+          <span class="icon">💻</span> Mã nguồn kịch bản SQL (database.sql)
+        </h2>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span class="code-title">MySQL 8.0+ / MariaDB • DDL & DML Schema</span>
+            <button class="btn-copy" onclick="copySqlCode()">Sao chép SQL</button>
+          </div>
+          <pre><code id="sql-block">-- Tạo cơ sở dữ liệu
+CREATE DATABASE IF NOT EXISTS quan_ly_don_hang CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE quan_ly_don_hang;
+
+-- 1. Bảng ĐƠN VỊ KHÁCH
+CREATE TABLE don_vi_khach (
+    ma_dv VARCHAR(20) NOT NULL PRIMARY KEY,
+    ten_dv VARCHAR(150) NOT NULL,
+    dia_chi VARCHAR(255) NOT NULL,
+    dien_thoai VARCHAR(20)
+);
+
+-- 2. Bảng NGƯỜI ĐẶT
+CREATE TABLE nguoi_dat (
+    ma_nd VARCHAR(20) NOT NULL PRIMARY KEY,
+    ho_ten_nd VARCHAR(100) NOT NULL,
+    ma_dv VARCHAR(20) NOT NULL,
+    CONSTRAINT fk_nguoidat_donvikhach FOREIGN KEY (ma_dv) REFERENCES don_vi_khach(ma_dv)
+);
+
+-- 3. Bảng NGƯỜI NHẬN
+CREATE TABLE nguoi_nhan (
+    ma_nn VARCHAR(20) NOT NULL PRIMARY KEY,
+    ho_ten_nn VARCHAR(100) NOT NULL,
+    ma_dv VARCHAR(20) NOT NULL,
+    CONSTRAINT fk_nguoinhan_donvikhach FOREIGN KEY (ma_dv) REFERENCES don_vi_khach(ma_dv)
+);
+
+-- 4. Bảng NGƯỜI GIAO
+CREATE TABLE nguoi_giao (
+    ma_ng VARCHAR(20) NOT NULL PRIMARY KEY,
+    ho_ten_ng VARCHAR(100) NOT NULL
+);
+
+-- 5. Bảng NƠI GIAO
+CREATE TABLE noi_giao (
+    ma_ddg VARCHAR(20) NOT NULL PRIMARY KEY,
+    ten_noi_giao VARCHAR(255) NOT NULL
+);
+
+-- 6. Bảng HÀNG
+CREATE TABLE hang (
+    ma_hang VARCHAR(20) NOT NULL PRIMARY KEY,
+    ten_hang VARCHAR(150) NOT NULL,
+    dv_tinh VARCHAR(50) NOT NULL,
+    mo_ta_hang TEXT
+);
+
+-- 7. Bảng ĐƠN ĐẶT HÀNG
+CREATE TABLE don_dat_hang (
+    so_dh VARCHAR(20) NOT NULL PRIMARY KEY,
+    ngay_dat DATE NOT NULL,
+    ma_nd VARCHAR(20) NOT NULL,
+    CONSTRAINT fk_dondat_nguoidat FOREIGN KEY (ma_nd) REFERENCES nguoi_dat(ma_nd)
+);
+
+-- 8. Bảng CHI TIẾT ĐƠN HÀNG
+CREATE TABLE chi_tiet_don_hang (
+    so_dh VARCHAR(20) NOT NULL,
+    ma_hang VARCHAR(20) NOT NULL,
+    so_luong_dat INT NOT NULL CHECK (so_luong_dat > 0),
+    PRIMARY KEY (so_dh, ma_hang),
+    FOREIGN KEY (so_dh) REFERENCES don_dat_hang(so_dh),
+    FOREIGN KEY (ma_hang) REFERENCES hang(ma_hang)
+);
+
+-- 9. Bảng PHIẾU GIAO HÀNG
+CREATE TABLE phieu_giao_hang (
+    so_pg VARCHAR(20) NOT NULL PRIMARY KEY,
+    ngay_giao DATE NOT NULL,
+    so_dh VARCHAR(20) NOT NULL,
+    ma_ng VARCHAR(20) NOT NULL,
+    ma_nn VARCHAR(20) NOT NULL,
+    ma_ddg VARCHAR(20) NOT NULL,
+    FOREIGN KEY (so_dh) REFERENCES don_dat_hang(so_dh),
+    FOREIGN KEY (ma_ng) REFERENCES nguoi_giao(ma_ng),
+    FOREIGN KEY (ma_nn) REFERENCES nguoi_nhan(ma_nn),
+    FOREIGN KEY (ma_ddg) REFERENCES noi_giao(ma_ddg)
+);
+
+-- 10. Bảng CHI TIẾT PHIẾU GIAO
+CREATE TABLE chi_tiet_phieu_giao (
+    so_pg VARCHAR(20) NOT NULL,
+    ma_hang VARCHAR(20) NOT NULL,
+    so_luong_giao INT NOT NULL CHECK (so_luong_giao > 0),
+    don_gia_giao DECIMAL(15, 2) NOT NULL CHECK (don_gia_giao >= 0),
+    thanh_tien DECIMAL(15, 2) GENERATED ALWAYS AS (so_luong_giao * don_gia_giao) STORED,
+    PRIMARY KEY (so_pg, ma_hang),
+    FOREIGN KEY (so_pg) REFERENCES phieu_giao_hang(so_pg),
+    FOREIGN KEY (ma_hang) REFERENCES hang(ma_hang)
+);</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>© 2026 Bài thực hành Thiết kế ERD Quản lý Đơn đặt hàng • CodeGym Curriculum</p>
+    </footer>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#090d16',
+        primaryColor: '#1e293b',
+        primaryTextColor: '#f8fafc',
+        primaryBorderColor: '#3b82f6',
+        lineColor: '#60a5fa',
+        secondaryColor: '#334155',
+        tertiaryColor: '#0f172a'
+      }
+    });
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function copySqlCode() {
+      const codeText = document.getElementById('sql-block').innerText;
+      navigator.clipboard.writeText(codeText).then(() => {
+        const btn = document.querySelector('.btn-copy');
+        btn.innerText = 'Đã sao chép! ✓';
+        btn.style.background = '#10b981';
+        btn.style.color = '#fff';
+        setTimeout(() => {
+          btn.innerText = 'Sao chép SQL';
+          btn.style.background = 'rgba(59, 130, 246, 0.2)';
+          btn.style.color = '#60a5fa';
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
